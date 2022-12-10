@@ -1,0 +1,8 @@
+torch
+transformers
+datasets
+typer[rich]
+tqdm
+pytorch_lightning
+Pillow
+git+https://github.com/openai/CLIP.git

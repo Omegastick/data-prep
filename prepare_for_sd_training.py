@@ -27,6 +27,7 @@ def prepare_dataset(
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    copied_count = 0
     for image in tqdm.tqdm(dataset):
         if aesthetic_score > 0 and (found_score := image.metadata.get("aesthetic_score", 0.0)) < aesthetic_score:
             if found_score == 0.0:
@@ -37,6 +38,12 @@ def prepare_dataset(
         with open(output_path.with_suffix(".txt"), "w") as f:
             f.write(", ".join(image.tags))
         shutil.copy(image.path, output_path)
+        copied_count += 1
+
+    dataset_size = len(dataset)
+    typer.echo(
+        f"Copied {copied_count} out of {dataset_size} ({copied_count / dataset_size * 100:.2f}%) to {output_dir}"
+    )
 
 
 if __name__ == "__main__":

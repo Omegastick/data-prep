@@ -1,5 +1,6 @@
 """CLI for adding basic tags from filenames and metadata to a dataset."""
 
+import re
 from typing import List
 
 import tqdm
@@ -92,6 +93,22 @@ def tag_description(image: Image) -> None:
         image.add_tag(description)
 
 
+def split_camel_case(input: str) -> list[str]:
+    matches = re.finditer(".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)", input)
+    return [m.group(0) for m in matches]
+
+
+def tag_subreddit(image: Image) -> None:
+    """Tag an image with its subreddit."""
+    subreddit = image.metadata.get("subreddit", None)
+    if not subreddit:
+        return
+
+    subreddit = " ".join(split_camel_case(subreddit))
+    subreddit = subreddit.replace("_", " ").replace("-", " ")
+    image.add_tag(subreddit)
+
+
 @app.command()
 def tag(
     data_dir: str = typer.Argument(..., help="Directory containing images to process"),
@@ -102,6 +119,7 @@ def tag(
     categories: bool = typer.Option(False, help="Tag images with their categories"),
     source: bool = typer.Option(False, help="Tag images with their source"),
     description: bool = typer.Option(False, help="Tag images with their description"),
+    subreddit: bool = typer.Option(False, help="Tag images with their subreddit"),
     preview: bool = typer.Option(False, "--preview", "-p", help="Print the tags instead of saving them"),
 ) -> None:
     """Add basic tags to a dataset."""
@@ -122,6 +140,8 @@ def tag(
             tag_source(image)
         if description:
             tag_description(image)
+        if subreddit:
+            tag_subreddit(image)
 
         if preview:
             typer.echo(f"Image: {image.path} - {image.tags}")

@@ -46,6 +46,7 @@ class Image:
         if not self.metadata_path.exists():
             print(f"Warning: {self.metadata_path} does not exist. Creating it.")
             self._metadata = {}
+            self.save_metadata()
         with open(self.metadata_path, "r") as f:
             return json.load(f)
 

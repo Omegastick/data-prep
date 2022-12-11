@@ -85,6 +85,13 @@ def tag_source(image: Image) -> None:
         image.add_tag(source)
 
 
+def tag_description(image: Image) -> None:
+    """Tag an image with its description."""
+    description = image.metadata.get("description", None)
+    if description:
+        image.add_tag(description)
+
+
 @app.command()
 def tag(
     data_dir: str = typer.Argument(..., help="Directory containing images to process"),
@@ -94,6 +101,7 @@ def tag(
     subfolders: bool = typer.Option(False, help="Tag images with their subfolders"),
     categories: bool = typer.Option(False, help="Tag images with their categories"),
     source: bool = typer.Option(False, help="Tag images with their source"),
+    description: bool = typer.Option(False, help="Tag images with their description"),
     preview: bool = typer.Option(False, "--preview", "-p", help="Print the tags instead of saving them"),
 ) -> None:
     """Add basic tags to a dataset."""
@@ -112,6 +120,8 @@ def tag(
             tag_cateories(image)
         if source:
             tag_source(image)
+        if description:
+            tag_description(image)
 
         if preview:
             typer.echo(f"Image: {image.path} - {image.tags}")

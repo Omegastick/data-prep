@@ -16,6 +16,7 @@ import typer
 from clip.clip import Compose
 from clip.model import CLIP
 from PIL import Image as PILImage
+from PIL import UnidentifiedImageError
 
 from dataset import DatasetDirectory, Image
 
@@ -104,7 +105,10 @@ app = typer.Typer()
 
 
 @app.command()
-def predict_aesthetic_scores(data_dir: str = typer.Argument(..., help="Path to the data directory")) -> None:
+def predict_aesthetic_scores(
+    data_dir: str = typer.Argument(..., help="Path to the data directory"),
+    skip_existing: bool = typer.Option(False, help="Skip images that already have an aesthetic score"),
+) -> None:
     """
     Predict aesthetic scores for images in a directory.
     """
@@ -115,7 +119,14 @@ def predict_aesthetic_scores(data_dir: str = typer.Argument(..., help="Path to t
     mlp = load_mlp(device)
 
     for image in tqdm.tqdm(dataset):
-        score = get_aesthetic_score(image, clip_model, mlp, preprocess, device)
+        if skip_existing and "aesthetic_score" in image.metadata:
+            typer.echo(f"{image.path}: already has aesthetic score, skipping")
+            continue
+        try:
+            score = get_aesthetic_score(image, clip_model, mlp, preprocess, device)
+        except UnidentifiedImageError:
+            typer.echo(f"{image.path}: UnidentifiedImageError")
+            continue
         typer.echo(f"{image.path}: {score}")
         image.metadata["aesthetic_score"] = score
         image.save_metadata()

@@ -43,6 +43,9 @@ class Image:
         return self.path.parent / (self.path.name + ".json")
 
     def load_metadata(self) -> Dict[str, Any]:
+        if not self.metadata_path.exists():
+            print(f"Warning: {self.metadata_path} does not exist. Creating it.")
+            self._metadata = {}
         with open(self.metadata_path, "r") as f:
             return json.load(f)
 

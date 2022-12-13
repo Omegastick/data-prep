@@ -98,7 +98,9 @@ async def main(output_dir: str, filters: list[str]):
 @app.command()
 def scrape(
     output_dir: str = typer.Argument(..., help="Directory to save images to"),
-    filters: list[str] = typer.Argument(None, help="Filters to apply to the search"),
+    filters: list[str] = typer.Argument(
+        None, help="Filters to apply to the search. Suggested 'fashion-tags/street-style'"
+    ),
 ) -> None:
     typer.echo(f"Saving images to {output_dir}")
     os.makedirs(output_dir, exist_ok=True)

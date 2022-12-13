@@ -65,7 +65,7 @@ async def get_page(page: int, size: int, session: aiohttp.ClientSession) -> list
         data = await response.json()
         return [
             Image(
-                name=image["caption"],
+                name=image["imageUrlMaster"].split("/")[-1],
                 credit=image["photo_credit"],
                 url=image["imageUrlMaster"],
                 description=image["altText"],

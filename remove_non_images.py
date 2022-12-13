@@ -17,10 +17,7 @@ def remove_non_images(directory: Path = typer.Argument(..., exists=True, file_ok
         for file in files:
             file_path = Path(root, file)
             if all(
-                [
-                    suffix not in [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".json"]
-                    for suffix in file_path.suffixes
-                ]
+                [suffix not in [".jpg", ".jpeg", ".png", ".bmp", ".webp", ".json"] for suffix in file_path.suffixes]
             ):
                 files_to_delete.append(file_path)
 

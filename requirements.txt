@@ -6,3 +6,4 @@ tqdm
 pytorch_lightning
 Pillow
 git+https://github.com/openai/CLIP.git
+git+https://github.com/Omegastick/bing_image_downloader.git

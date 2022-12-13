@@ -24,6 +24,7 @@ def remove_non_images(directory: Path = typer.Argument(..., exists=True, file_ok
             ):
                 files_to_delete.append(file_path)
 
+    typer.echo([str(file) for file in files_to_delete])
     delete = typer.confirm(f"Delete {len(files_to_delete)} files?")
     if not delete:
         return

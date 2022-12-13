@@ -30,8 +30,12 @@ def remove_non_images(directory: Path = typer.Argument(..., exists=True, file_ok
         return
 
     for file in tqdm.tqdm(files_to_delete):
-        os.remove(file)
-        os.remove(file.with_suffix(file.suffix + ".json"))
+        try:
+            os.remove(file)
+            os.remove(file.with_suffix(file.suffix + ".json"))
+        except FileNotFoundError:
+            typer.echo(f"File {file} or metadata not found, skipping.")
+            continue
 
 
 if __name__ == "__main__":

@@ -108,6 +108,7 @@ app = typer.Typer()
 def predict_aesthetic_scores(
     data_dir: str = typer.Argument(..., help="Path to the data directory"),
     skip_existing: bool = typer.Option(False, help="Skip images that already have an aesthetic score"),
+    tag_quality: bool = typer.Option(True, help="Tag images with a quality score"),
 ) -> None:
     """
     Predict aesthetic scores for images in a directory.
@@ -129,6 +130,15 @@ def predict_aesthetic_scores(
             continue
         typer.echo(f"{image.path}: {score}")
         image.metadata["aesthetic_score"] = score
+
+        if tag_quality:
+            if score > 6.5:
+                image.add_tag("masterpiece")
+            elif score > 6:
+                image.add_tag("high quality")
+            elif score < 4.5:
+                image.add_tag("low quality")
+
         image.save_metadata()
 
 

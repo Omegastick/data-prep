@@ -29,7 +29,7 @@ def tag_filename(image: Image) -> None:
 
     filename = filename[: filename.index(".")]
 
-    if image.metadata.get("category", None) == "imgur":
+    if image.metadata.get("category") == "imgur":
         # imgur_6eYvod6_Title.jpg
         filename = filename[14:]
 
@@ -64,16 +64,19 @@ def tag_subfolders(image: Image) -> None:
 
 def tag_title(image: Image) -> None:
     """Tag an image with its title if it has one."""
-    title = image.metadata.get("title", None)
+    title = image.metadata.get("title")
     if title:
         image.add_tag(title)
 
 
 def tag_cateories(image: Image) -> None:
     """Tag an image with its categories."""
-    categories: List[str] | str = image.metadata.get("categories", None) or image.metadata.get("category", None)
-    if not isinstance(categories, list):
-        categories = [categories]
+    categories: list[str] = []
+    if metadata_categories := image.metadata.get("categories"):
+        categories = metadata_categories
+    if category := image.metadata.get("category"):
+        categories.append(category)
+
     if categories:
         for category in categories:
             image.add_tag(category)
@@ -81,14 +84,14 @@ def tag_cateories(image: Image) -> None:
 
 def tag_source(image: Image) -> None:
     """Tag an image with its source."""
-    source = image.metadata.get("source", None)
+    source = image.metadata.get("source")
     if source:
         image.add_tag(source)
 
 
 def tag_description(image: Image) -> None:
     """Tag an image with its description."""
-    description = image.metadata.get("description", None)
+    description = image.metadata.get("description")
     if description:
         image.add_tag(description)
 
@@ -100,13 +103,20 @@ def split_camel_case(input: str) -> list[str]:
 
 def tag_subreddit(image: Image) -> None:
     """Tag an image with its subreddit."""
-    subreddit = image.metadata.get("subreddit", None)
+    subreddit = image.metadata.get("subreddit")
     if not subreddit:
         return
 
     subreddit = " ".join(split_camel_case(subreddit))
     subreddit = subreddit.replace("_", " ").replace("-", " ")
     image.add_tag(subreddit)
+
+
+def tag_credit(image: Image) -> None:
+    """Tag an image with its credit."""
+    credit = image.metadata.get("credit")
+    if credit:
+        image.add_tag(f"by {credit}")
 
 
 @app.command()
@@ -120,6 +130,7 @@ def tag(
     source: bool = typer.Option(False, help="Tag images with their source"),
     description: bool = typer.Option(False, help="Tag images with their description"),
     subreddit: bool = typer.Option(False, help="Tag images with their subreddit"),
+    credit: bool = typer.Option(False, help="Tag images with their credit"),
     preview: bool = typer.Option(False, "--preview", "-p", help="Print the tags instead of saving them"),
 ) -> None:
     """Add basic tags to a dataset."""
@@ -142,6 +153,8 @@ def tag(
             tag_description(image)
         if subreddit:
             tag_subreddit(image)
+        if credit:
+            tag_credit(image)
 
         if preview:
             typer.echo(f"Image: {image.path} - {image.tags}")

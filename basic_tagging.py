@@ -115,6 +115,8 @@ def tag_subreddit(image: Image) -> None:
 def tag_credit(image: Image) -> None:
     """Tag an image with its credit."""
     credit = image.metadata.get("credit")
+    if isinstance(credit, list):
+        credit = ", ".join(credit)
     if credit:
         image.add_tag(f"by {credit}")
 

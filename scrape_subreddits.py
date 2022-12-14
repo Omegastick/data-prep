@@ -10,6 +10,7 @@ import typer
 from asyncpraw.exceptions import AsyncPRAWException
 from asyncpraw.models import Submission
 from asyncpraw.models import Subreddit as PRAWSubreddit
+from asyncprawcore.exceptions import AsyncPrawcoreException
 
 from dataset import DatasetDirectory
 
@@ -48,7 +49,7 @@ async def get_submission(
     typer.echo(f"Fetching {submission.title}")
     try:
         await submission.load()
-    except AsyncPRAWException as e:
+    except (AsyncPRAWException, AsyncPrawcoreException) as e:
         typer.echo(f"Error: {e} for {submission.url}")
         return
 
@@ -110,7 +111,7 @@ async def scrape_subreddit(subreddit: Subreddit, reddit: asyncpraw.Reddit, datas
     praw_subreddit: PRAWSubreddit = await reddit.subreddit(subreddit.name)
     try:
         await praw_subreddit.load()
-    except AsyncPRAWException as e:
+    except (AsyncPRAWException, AsyncPrawcoreException) as e:
         typer.echo(f"Error: {e} for {subreddit.name}")
         return
 

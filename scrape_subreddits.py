@@ -22,6 +22,7 @@ class Subreddit:
 
 
 SUBREDDITS: list[Subreddit] = [
+    Subreddit("itookapicture", "Photography"),
     Subreddit("portraits", "Portrait photography"),
     Subreddit("art", "Art"),
     Subreddit("malefashion", "Fashion"),
@@ -82,7 +83,7 @@ async def get_submission(
         file_name = f"{subreddit.display_name}{submission.id}_{url[1]}{extension}"
 
         metadata = {
-            "title": submission.title,
+            "title": submission.title.replace("ITAP", "photo"),
             "nsfw": submission.over_18,
             "source": "reddit",
             "subreddit": subreddit.display_name,

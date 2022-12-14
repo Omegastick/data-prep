@@ -22,14 +22,14 @@ class Subreddit:
 
 
 SUBREDDITS: list[Subreddit] = [
-    Subreddit("itookapicture", "Photography"),
-    Subreddit("portraits", "Portrait photography"),
-    Subreddit("art", "Art"),
-    Subreddit("malefashion", "Fashion"),
     Subreddit("techwear", "Techwear"),
     Subreddit("techwearclothing", "Techwear"),
     Subreddit("darkwearclothing", "Darkwear"),
     Subreddit("JustNiceFits", "Outfits"),
+    Subreddit("itookapicture", "Photography"),
+    Subreddit("portraits", "Portrait photography"),
+    Subreddit("art", "Art"),
+    Subreddit("malefashion", "Fashion"),
 ]
 
 
@@ -57,7 +57,11 @@ async def get_submission(
     urls = []
     if hasattr(submission, "media_metadata"):
         for image in submission.media_metadata.values():
-            urls.append((image["s"]["u"], image["id"]))
+            try:
+                urls.append((image["s"]["u"], image["id"]))
+            except KeyError:
+                typer.echo(f"Error: Metadata error for {submission.url} - {image}")
+                return
     else:
         urls.append((submission.url, submission.id))
 

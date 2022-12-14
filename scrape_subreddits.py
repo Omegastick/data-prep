@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import aiohttp
 import asyncpraw
 import typer
+from asyncpraw.exceptions import AsyncPRAWException
 from asyncpraw.models import Submission
 from asyncpraw.models import Subreddit as PRAWSubreddit
 
@@ -45,7 +46,11 @@ async def get_submission(
         return
 
     typer.echo(f"Fetching {submission.title}")
-    await submission.load()
+    try:
+        await submission.load()
+    except AsyncPRAWException as e:
+        typer.echo(f"Error: {e} for {submission.url}")
+        return
 
     urls = []
     if hasattr(submission, "media_metadata"):
@@ -56,7 +61,7 @@ async def get_submission(
 
     for url in urls:
         try:
-            response = await session.get(url[0], timeout=60)
+            response = await session.get(url[0], timeout=360)
         except asyncio.TimeoutError:
             typer.echo(f"Error: Timeout for {submission.url}")
             return
@@ -103,9 +108,13 @@ async def scrape_subreddit(subreddit: Subreddit, reddit: asyncpraw.Reddit, datas
     typer.echo(f"Scraping {subreddit.name}")
 
     praw_subreddit: PRAWSubreddit = await reddit.subreddit(subreddit.name)
-    await praw_subreddit.load()
+    try:
+        await praw_subreddit.load()
+    except AsyncPRAWException as e:
+        typer.echo(f"Error: {e} for {subreddit.name}")
+        return
 
-    submissions = praw_subreddit.top("all", limit=10)
+    submissions = praw_subreddit.top("all", limit=3000)
     tasks = []
 
     async with aiohttp.ClientSession() as session:

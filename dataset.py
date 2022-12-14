@@ -71,6 +71,17 @@ class DatasetDirectory:
                 images.append(Image(Path(root) / file, subfolders))
         return images
 
+    def create_image(self, data: bytes, file_name: str, metadata: dict[str, Any]) -> Image:
+        print(f"Saving {file_name} to {Path(self.path) / file_name}")
+        with open(Path(self.path) / file_name, "wb") as f:
+            f.write(data)
+        with open(Path(self.path) / (file_name + ".json"), "w") as f:
+            json.dump(metadata, f)
+        image = Image(Path(self.path) / file_name)
+        self.images.append(image)
+
+        return image
+
     def __getitem__(self, index: int) -> Image:
         return self.images[index]
 
